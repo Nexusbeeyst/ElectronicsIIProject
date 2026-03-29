@@ -79,15 +79,19 @@ void loop() {
 
     // if in noise sensing mode, display horizontally the noise value
     int width = NUM_LEDS / LED_HEIGHT;
+    uint8_t lineWidth = 0;
+    if (isNoiseSensing)
+    {
+        // map 0-255 to the width of the LED, one dimensional representation
+        lineWidth = (RMSBuffer[lastBufferIndex]*noiseLevelDisplayScale) / (256 / width);
+    }
     for (int x = 0; x < width; x++)
     {
         // map 0-255 to 0-7;
         uint8_t lineHeight = 0;
         if (isNoiseSensing)
         {
-            // map 0-255 to the width of the LED, one dimensional representation
             // TODO: change vertical line color to horizontal;
-            uint8_t lineWidth = RMSBuffer[lastBufferIndex] / (256 / width);
             lineHeight = (x < lineWidth) ? LED_HEIGHT : 0;
         }
         else
@@ -159,7 +163,7 @@ uint8_t calculateRMS(uint8_t data[])
     return sqrt(sum);
 }
 
-// if it's greater than 1/2 RMS samples, it is considered a noise event 
+// if it's greater than 1/2 RMS samples and above the threshold, it is considered a noise event 
 bool isNoiseEvent(uint8_t val)
 {
     uint8_t lessers = 0;
@@ -171,5 +175,5 @@ bool isNoiseEvent(uint8_t val)
         }
     }
 
-    return (lessers >= BUFFER_ARRAY_SIZE/2);
+    return (lessers >= BUFFER_ARRAY_SIZE/2) && (val > noiseThreshold);
 }

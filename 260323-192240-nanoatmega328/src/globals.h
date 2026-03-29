@@ -17,12 +17,13 @@
 #define BUFFER_ARRAY_SIZE 8
 
 const float inputGain = 1; // NOTE: changing this causes reduced performance, likely due to added casting
+const float noiseLevelDisplayScale = 4; // scales RMS value when displaying
 const float spectrumMagScale = 1.2;
 const float samplingRate = 9600; // determined by experimentation
-const uint8_t brightness = 25;
-// const float noiseRMSThreshold = 2; // compared to the last few samples
-const float buzzerDuration = 3000; // ms
-const uint16_t buzzerTone = 8000;
+const uint8_t brightness = 20; // <= 20 will give keep current load under 1 amp
+const uint8_t noiseThreshold = 48; // RMS value that must be reached for a noise event to be considered loud enough
+const float buzzerDuration = 500; // ms
+const uint16_t buzzerTone = 1000;
 
 // debugging
 const bool frequencyTest = false;
