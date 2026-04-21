@@ -87,23 +87,25 @@ void loop() {
     }
     for (int x = 0; x < width; x++)
     {
-        // map 0-255 to 0-7;
         uint8_t lineHeight = 0;
         if (isNoiseSensing)
         {
-            // TODO: change vertical line color to horizontal;
             lineHeight = (x < lineWidth) ? LED_HEIGHT : 0;
+            uint8_t colorIndex = lineWidth / 4; // map width (32) to color index so that the color is horizontal
+            for (int drawHeight = 0; drawHeight < lineHeight; drawHeight++)
+            {
+                addressLED((width - 1) - x, drawHeight, visualizerColor[colorIndex]);
+            }
         }
         else
         {
+            // map 0-255 to 0-7;
             int y = averageData(samples, x, SAMPLE_AMOUNT / width) / (255/LED_HEIGHT);
             lineHeight = y;
-        }
-        // draw line 
-        // LED_HEIGHT to test
-        for (int drawHeight = 0; drawHeight < lineHeight; drawHeight++)
-        {
-            addressLED((width - 1) - x, drawHeight, visualizerColor[drawHeight]);
+            for (int drawHeight = 0; drawHeight < lineHeight; drawHeight++)
+            {
+                addressLED((width - 1) - x, drawHeight, visualizerColor[drawHeight]);
+            }
         }
     }   
 
