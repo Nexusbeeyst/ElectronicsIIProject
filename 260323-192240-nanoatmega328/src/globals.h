@@ -8,8 +8,8 @@
 #include "fft_utility.h"
 
 #define AUDIO_INPUT A0
-#define NOISE_MONITOR_ENABLE 3
-#define BUZZER_OUTPUT 4
+#define NOISE_MONITOR_ENABLE 7
+#define BUZZER_OUTPUT 9
 #define LED_PIN 2
 #define NUM_LEDS 256
 #define LED_HEIGHT 8
@@ -18,12 +18,12 @@
 
 const float inputGain = 1; // NOTE: changing this causes reduced performance, likely due to added casting
 const float noiseLevelDisplayScale = 4; // scales RMS value when displaying
-const float spectrumMagScale = 1.2;
+const float spectrumMagScale = 1.3;
 const float samplingRate = 9600; // determined by experimentation
-const uint8_t brightness = 20; // <= 20 will give keep current load under 1 amp
+const uint8_t brightness = 12; // <= 20 will give keep current load under 1 amp
 const uint8_t noiseThreshold = 48; // RMS value that must be reached for a noise event to be considered loud enough
 const float buzzerDuration = 500; // ms
-const uint16_t buzzerTone = 1000;
+const uint16_t buzzerTone = 4000;
 
 // debugging
 const bool frequencyTest = false;

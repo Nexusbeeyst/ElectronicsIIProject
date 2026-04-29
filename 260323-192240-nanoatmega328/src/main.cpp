@@ -7,9 +7,10 @@ uint8_t RMSBuffer[BUFFER_ARRAY_SIZE] = {0}; // array of RMS values
 void addressLED(int x, int y, CRGB color);
 uint8_t calculateRMS(uint8_t data[]);
 bool isNoiseEvent(uint8_t val);
+void flashLEDAlarm();
 
-float executionTime = 0.0;
-float lastTime = 0.0;
+uint16_t executionTime = 0.0;
+uint32_t lastTime = 0.0;
 uint8_t lastBufferIndex = 0;
 bool isBuzzerActive = false;
 bool isNoiseSensing;
@@ -17,7 +18,7 @@ float buzzerTimer = 0;
 
 void setup() {
     pinMode(BUZZER_OUTPUT, OUTPUT);
-    pinMode(NOISE_MONITOR_ENABLE, INPUT);
+    pinMode(NOISE_MONITOR_ENABLE, INPUT_PULLUP);
     FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
     FastLED.setBrightness(brightness);
     Serial.begin(9600);
@@ -72,10 +73,7 @@ void loop() {
     // Serial.println("Timing fft:");
     // lastTime = millis();    
 
-    if (!isBuzzerActive) // dont update the LEDs while buzzing
-    {
-        FastLED.clear();
-    }
+    FastLED.clear();
 
     // if in noise sensing mode, display horizontally the noise value
     int width = NUM_LEDS / LED_HEIGHT;
@@ -89,7 +87,7 @@ void loop() {
     {
         uint8_t lineHeight = 0;
         if (isNoiseSensing)
-        {
+         {
             lineHeight = (x < lineWidth) ? LED_HEIGHT : 0;
             uint8_t colorIndex = lineWidth / 4; // map width (32) to color index so that the color is horizontal
             for (int drawHeight = 0; drawHeight < lineHeight; drawHeight++)
@@ -109,10 +107,8 @@ void loop() {
         }
     }   
 
-    if (!isBuzzerActive) // dont update the LEDs while buzzing
-    {
-        FastLED.show();
-    }
+    // maybe change this so that it does
+    FastLED.show();
     
     if (frequencyTest)
     {
@@ -130,10 +126,12 @@ void loop() {
     if (isBuzzerActive)
     {
         buzzerTimer -= (millis() - lastTime);
+        flashLEDAlarm();
         if (buzzerTimer <= 0)
         {
             isBuzzerActive = false;
             noTone(BUZZER_OUTPUT);
+            FastLED.setBrightness(brightness); // reset brightness
         }
     }
 }
@@ -178,4 +176,15 @@ bool isNoiseEvent(uint8_t val)
     }
 
     return (lessers >= BUFFER_ARRAY_SIZE/2) && (val > noiseThreshold);
+}
+
+void flashLEDAlarm() {
+	static uint8_t curr = 0;
+	static int8_t x = 2; // slow down pulsing so it doesn't strobe
+	curr += x; // scale brightness for slower effect
+	if (curr <= 0 || curr >= brightness) x = -x;
+
+	fill_solid(leds, NUM_LEDS, CRGB::Red);
+	FastLED.setBrightness(curr);
+	FastLED.show();
 }
